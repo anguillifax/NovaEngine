@@ -1,0 +1,9 @@
+# Editor files
+.vscode
+*.code-workspace
+
+# Build directories
+build-vscode
+
+# Binary resources
+binary-assets
