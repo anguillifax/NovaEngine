@@ -26,6 +26,11 @@ add_executable(
     driver/main.cpp
 )
 
+target_include_directories(
+    Driver
+    PRIVATE driver
+)
+
 target_link_libraries(
     Driver
     PRIVATE Nova

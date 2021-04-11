@@ -4,34 +4,12 @@
 #include <iostream>
 #include <thread>
 
+#include "QuickFormat.hpp"
+
 #include "Sequencer.hpp"
 
 namespace DriverTesting {
 
-	template <typename T>
-	void Print(const T& obj) {
-		std::cout << obj << '\n';
-	}
-
-	template <typename T>
-	void Print(const char* msg, const T& obj) {
-		std::cout << msg << ": " << obj << '\n';
-	}
-
-	void Print(const char* msg) {
-		std::cout << msg << '\n';
-	}
-
-	class Tester {
-	public:
-		void MyFunc() {
-			std::cout << "MyFunc()\n";
-		}
-	};
-
-} // namespace DriverTesting
-
-namespace DriverTesting {
 	void SequencerThread(Nova::Sequencer sequencer, float maxDuration) {
 		std::cout << "[ Begin sequencer thread for " << maxDuration << "s ]\n";
 
