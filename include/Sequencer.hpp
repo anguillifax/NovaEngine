@@ -10,7 +10,10 @@ namespace Nova {
 	public:
 		using FuncSignature = std::function<void(Args...)>;
 
-		explicit OneTimeCallable() = default;
+		OneTimeCallable() = default;
+		OneTimeCallable(const FuncSignature& func) // implicit
+			: func{func} {
+		}
 
 		void Bind(const FuncSignature& function) {
 			func = function;
@@ -29,6 +32,10 @@ namespace Nova {
 			}
 		}
 
+		[[nodiscard]] bool IsConsumed() const noexcept {
+			return state == State::Consumed;
+		}
+
 	private:
 		enum class State : char {
 			Ready = 0,
@@ -39,23 +46,52 @@ namespace Nova {
 		State state{};
 	};
 
+	class Sequencer;
+
 	class SequencerEvent {
 	public:
+		using FuncSignature = std::function<void(float)>;
+		SequencerEvent(float triggerTime);
+		SequencerEvent& BindAt(const FuncSignature& callback);
+
+	private:
+		friend Sequencer;
+		void ResetAll();
+		float triggerTime{};
+		OneTimeCallable<float> callbackAt{};
 	};
 
 	class SequencerRange {
 	public:
+		using FuncSignature = std::function<void(float)>;
+		SequencerRange(float startTime, float stopTime);
+		SequencerRange& BindBegin(const FuncSignature& callback);
+		SequencerRange& BindDuring(const FuncSignature& callback);
+		SequencerRange& BindEnd(const FuncSignature& callback);
+
+	private:
+		friend Sequencer;
+		void ResetAll();
+		float startTime{};
+		float stopTime{};
+		OneTimeCallable<float> callbackBegin{};
+		std::function<void(float)> callbackDuring{};
+		OneTimeCallable<float> callbackEnd{};
 	};
 
 	class Sequencer {
 	public:
 		explicit Sequencer();
+
 		void Start();
-		void Update();
-		void Update(float newTime);
+		void Update(float deltaTime);
+		/// Stop() ensures that ranges are closed before sequencer finishing.
 		void Stop();
-		SequencerEvent& ScheduleEvent(float time);
-		SequencerRange& ScheduleRange(float startTime, float stopTime);
+
+		[[nodiscard]] SequencerEvent& ScheduleEvent(float triggerTime);
+		[[nodiscard]] SequencerRange& ScheduleRangeWithBounds(float startTime, float stopTime);
+		[[nodiscard]] SequencerRange& ScheduleRangeWithDuration(float startTime, float duration);
+		[[nodiscard]] SequencerEvent& ScheduleRepeating(float initialDelay, float repeatDelay);
 
 	private:
 		float currentTime{};

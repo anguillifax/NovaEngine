@@ -6,7 +6,7 @@ namespace Nova {
 
 	class NotImplementedException : public std::exception {
 	public:
-		explicit NotImplementedException();
+		explicit NotImplementedException() = default;
 	};
 
 }
